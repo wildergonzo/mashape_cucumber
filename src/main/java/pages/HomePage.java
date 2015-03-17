@@ -1,22 +1,19 @@
-package mashape.pages;
-
-import org.openqa.selenium.*;
-import java.util.concurrent.TimeUnit;
+package pages;
 
 import framework.selenium.DriverManager;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 
-/**
- * Created by wilder on 3/3/15.
- */
 
 public class HomePage {
+
     private WebDriver driver;
-    private String baseUrl;
-    private By loginBtn = By.xpath("//span[contains(@class,'text')]");
+    private By loginBtn = By.cssSelector("span.text");
 
     public HomePage() {
         driver = DriverManager.getInstance().getWebDriver();
-        baseUrl = "https://www.mashape.com";
+        String baseUrl = "https://www.mashape.com";
         driver.get(baseUrl);
     }
 
@@ -25,11 +22,11 @@ public class HomePage {
         return new LoginModal(driver);
     }
 
-    public DashboardPage loginAs(String username, String password) {
+    public DashboardHeader loginAs(String username, String password) {
         try {
-            DashboardPage dashboard = new DashboardPage(driver);
-            if (!dashboard.getCurrentUserName().equals(username)) {
-                //dashboard.logout();
+            DashboardHeader dashboardHeader = new DashboardHeader(driver);
+            if (!dashboardHeader.getCurrentUserName().equals(username)) {
+                dashboardHeader.logout();
                 LoginModal loginModal = clickLoginBtn();
                 loginModal.loginAs(username, password);
             }
@@ -37,7 +34,6 @@ public class HomePage {
             LoginModal loginModal = clickLoginBtn();
             loginModal.loginAs(username, password);
         }
-        return new DashboardPage(driver);
+        return new DashboardHeader(driver);
     }
-
 }

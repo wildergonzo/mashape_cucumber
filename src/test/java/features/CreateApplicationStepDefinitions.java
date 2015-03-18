@@ -4,56 +4,57 @@ package features;
  * Created by wilder on 3/4/15.
  */
 
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.api.java.en.And;
-import java.util.concurrent.TimeUnit;
-
-import mashape.pages.ApplicationPage;
-import mashape.pages.CreateAppModal;
-import mashape.pages.DashboardPage;
-import mashape.pages.HomePage;
-import org.openqa.selenium.*;
-import org.testng.Assert;
-import framework.selenium.DriverManager;
+import org.junit.Assert;
+import pages.*;
 
 public class CreateApplicationStepDefinitions {
-    private WebDriver driver;
-    private HomePage homepage;
-    private DashboardPage dashboardpage;
-    private CreateAppModal createmodal;
-    private ApplicationPage applicationpage;
+    private DashboardHeader dashboardHeader;
+    private Dashboard dashboard;
+    private ApplicationSidebar applicationSidebar;
 
-    @Before
-    public void setUp() {
-        homepage = new HomePage();
-        dashboardpage = homepage.loginAs("wildergonzo", "Control123");
+    @Given("^Login as (.*) (.*)$")
+    public void loginAs(String username, String password) {
+        HomePage homepage = new HomePage();
+        dashboardHeader = homepage.loginAs(username, password);
     }
 
-    @Given("^I want to create a new application$")
-    public void clickAddNewApplication() {
-        driver = DriverManager.getInstance().getWebDriver();
-        createmodal = dashboardpage.clickNewApp();
+    @When("^Create a new application (.*) in Dashboard")
+    public void createNewAppInDashboard(String app) {
+        dashboard = dashboardHeader.goToDashboardPage();
+
+        // Click on Add New Application link in dashboard page.
+        CreateApplicationModal newAppModal = dashboard.clickAddNewApplicationLink();
+
+        // Fill data to create an application
+        newAppModal.setAppNameTxt(app);
+        applicationSidebar = newAppModal.clickContinueBtn();
     }
 
-    @When("^I enter the application name (.*)$")
-    public void enterApplicationName(String app_name) {
-        createmodal.setNameApp(app_name);
+    @When("^Create a new application (.*) in Dropdown")
+    public void createNewAppFromDropdown(String app) {
+        // Click on dropdown Application from header dashboard page and select Create Application option
+        CreateApplicationModal createApplicationModal = dashboardHeader.clickCreateApplicationDropdown();
+
+        // Fill data to create an application
+        createApplicationModal.setAppNameTxt(app);
+        applicationSidebar = createApplicationModal.clickContinueBtn();
     }
 
-    @And("^I press Continue button$")
-    public void clickContinueButton() {
-        applicationpage = createmodal.clickContinueBtn();
+    @Then("^New App (.*) should be displayed in Sidebar")
+    public void appShouldBeDisplayedInSidebar(String app) {
+        // Verify that app was created successfully
+        Assert.assertEquals("The new application: " + app + "was not created successfully.",
+                applicationSidebar.getCurrentAppName(), app.toUpperCase());
     }
 
-
-    @Then("^I should be able to create app$")
-    public void assertUserLogin() {
-        String newApp = "apptest1";
-        Assert.assertEquals(applicationpage.getAppName(), newApp.toUpperCase(), "The app was not successfully created");
+    @Then("^New App (.*) should be displayed in Dashboard")
+    public void appShouldBeDisplayedInDashboard(String app) {
+        // Verify in dashboard page that application was created.
+        dashboard = dashboardHeader.goToDashboardPage();
+        Assert.assertTrue("The new application: " + app + "was not created successfully.",
+                dashboard.isAppDisplayed(app));
     }
-
 }

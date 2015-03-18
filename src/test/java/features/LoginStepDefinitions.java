@@ -3,32 +3,23 @@ package features;
 /**
  * Created by wilder on 3/3/15.
  */
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
+
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.api.java.en.And;
-import java.util.concurrent.TimeUnit;
-
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import org.testng.Assert;
-
-import mashape.pages.HomePage;
-import mashape.pages.LoginModal;
-import mashape.pages.DashboardPage;
+import org.junit.Assert;
+import pages.DashboardHeader;
+import pages.HomePage;
+import pages.LoginModal;
 
 public class LoginStepDefinitions {
-    private WebDriver driver;
-    private WebDriverWait wait;
-    private HomePage homepage;
     private LoginModal loginmodal;
-    private DashboardPage dashboardpage;
+    private DashboardHeader dashboardHeader;
 
     @Given("^I want to access to my account$")
     public void clickLoginOption() {
-        homepage = new HomePage();
+        HomePage homepage = new HomePage();
         loginmodal = homepage.clickLoginBtn();
     }
 
@@ -43,12 +34,12 @@ public class LoginStepDefinitions {
     }
 
     @And("^I click submit button$")
-    public void clickSubmitButton() { dashboardpage = loginmodal.clickLoginBtn(); }
-
-    @Then("^I should be able to login website$")
-    public void assertUserLogin() {
-        String expectedUser = "wildergonzo";
-        Assert.assertEquals(dashboardpage.getCurrentUserName(), expectedUser);
+    public void clickSubmitButton() {
+        dashboardHeader = loginmodal.clickLoginBtn();
     }
 
+    @Then("^I should be able to login website (.*)$")
+    public void assertUserLogin(String expectedUser) {
+        Assert.assertEquals(dashboardHeader.getCurrentUserName(), expectedUser);
+    }
 }
